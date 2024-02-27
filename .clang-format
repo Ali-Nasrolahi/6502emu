@@ -10,5 +10,4 @@ ConstructorInitializerAllOnOneLineOrOnePerLine: 'false'
 Standard: Auto
 IndentWidth: '4'
 UseTab: Never
-
 ...

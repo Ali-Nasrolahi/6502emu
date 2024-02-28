@@ -13,7 +13,6 @@ struct machine {
     CPU cpu;
 };
 
-static struct bus_type CPU_BUS;
 static struct machine NES;
 
 void machine_run(void);

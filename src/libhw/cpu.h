@@ -8,10 +8,6 @@
 #define _CPU_H_
 
 #include "device.h"
-
-typedef uint16_t _u16;
-typedef uint8_t _u8;
-
 union _process_status_reg_ {
     struct flags {
         _u8 cf : 1;      /* Carry Flag */
@@ -19,7 +15,7 @@ union _process_status_reg_ {
         _u8 id : 1;      /* Interrupt Disable */
         _u8 dm : 1;      /* Decimal Mode */
         _u8 bc : 1;      /* Break Command */
-        _u8 of : 1;      /*Overflow Flag */
+        _u8 of : 1;      /* Overflow Flag */
         _u8 nf : 1;      /* Negative Flag */
         _u8 padding : 1; /* Just to keep it aligned to single byte */
     } flags;
@@ -43,6 +39,14 @@ struct _6502_cpu {
 
 typedef struct _6502_cpu CPU;
 
-int init_cpu(struct bus_type *, CPU *);
+struct _6502_ram {
+    struct device dev;
+    _u8 memory[64 * 1024];
+
+    _u8 (*read)(struct _6502_ram *ram, _u16 addr);
+    void (*write)(struct _6502_ram *ram, _u16 addr, _u8 data);
+};
+
+typedef struct _6502_ram RAM;
 
 #endif /* _CPU_H_ */

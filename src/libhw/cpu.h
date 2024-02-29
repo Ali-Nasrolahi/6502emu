@@ -8,28 +8,28 @@
 #define _CPU_H_
 
 #include "device.h"
-union _process_status_reg_ {
+union _6502_process_status_reg_ {
     struct flags {
-        _u8 cf : 1;      /* Carry Flag */
-        _u8 zf : 1;      /* Zero Flag */
-        _u8 id : 1;      /* Interrupt Disable */
-        _u8 dm : 1;      /* Decimal Mode */
-        _u8 bc : 1;      /* Break Command */
-        _u8 of : 1;      /* Overflow Flag */
-        _u8 nf : 1;      /* Negative Flag */
-        _u8 padding : 1; /* Just to keep it aligned to single byte */
+        _u8 cf : 1; /* Carry Flag */
+        _u8 zf : 1; /* Zero Flag */
+        _u8 id : 1; /* Interrupt Disable */
+        _u8 dm : 1; /* Decimal Mode */
+        _u8 bc : 1; /* Break Command */
+        _u8 un : 1; /* Unused */
+        _u8 of : 1; /* Overflow Flag */
+        _u8 nf : 1; /* Negative Flag */
     } flags;
 
     _u8 reg;
 };
 
 struct _6502_registers {
-    _u16 pc;                       /* Program counter */
-    _u8 sp;                        /* Stack pointer */
-    _u8 acc;                       /* Accumulator */
-    _u8 ix;                        /* Index X */
-    _u8 iy;                        /* Index Y */
-    union _process_status_reg_ ps; /* Process Status */
+    _u16 pc;                            /* Program counter */
+    _u8 sp;                             /* Stack pointer */
+    _u8 acc;                            /* Accumulator */
+    _u8 ix;                             /* Index X */
+    _u8 iy;                             /* Index Y */
+    union _6502_process_status_reg_ ps; /* Process Status */
 };
 
 struct _6502_cpu {
@@ -39,14 +39,7 @@ struct _6502_cpu {
 
 typedef struct _6502_cpu CPU;
 
-struct _6502_ram {
-    struct device dev;
-    _u8 memory[64 * 1024];
-
-    _u8 (*read)(struct _6502_ram *ram, _u16 addr);
-    void (*write)(struct _6502_ram *ram, _u16 addr, _u8 data);
-};
-
-typedef struct _6502_ram RAM;
+void cpu_init(CPU *);
+void cpu_loop(CPU *, void *);
 
 #endif /* _CPU_H_ */

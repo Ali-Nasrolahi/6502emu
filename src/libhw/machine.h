@@ -8,9 +8,11 @@
 #define _MACHINE_H_
 
 #include "cpu.h"
+#include "ram.h"
 
 struct machine {
     CPU cpu;
+    RAM ram;
 };
 
 static struct machine NES;

@@ -4,8 +4,6 @@
 
 void machine_run()
 {
-    if (init_cpu(&NES.cpu) < 0) {
-        printf("CPU init failed.");
-        _exit(-1);
-    }
+    cpu_init(&NES.cpu);
+    ram_init(&NES.ram);
 }

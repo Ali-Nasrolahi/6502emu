@@ -1,6 +1,7 @@
 list(APPEND src
-    cpu.c
     device.c
+    cpu.c
+    ram.c
     machine.c
 )
 

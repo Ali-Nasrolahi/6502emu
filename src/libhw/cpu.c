@@ -1,25 +1,29 @@
 #include "cpu.h"
+#include "isa.h"
 #include "ram.h"
 
-static void cpu_fetch(CPU *cpu, RAM *ram);
-static void cpu_exec(CPU *cpu);
+extern isa isa_table[];
+
+static void cpu_fetch_n_run(CPU *cpu, RAM *ram);
 
 void cpu_init(CPU *cpu)
 {
     struct _6502_registers *reg = &cpu->regs;
 
     memset(cpu, 0, sizeof(CPU));
+
     cpu->dev.name = "CPU";
+
     reg->sp = 0xfd;
     reg->ps.flags.un = 0x1;
 }
 
-void cpu_loop(CPU *cpu, void *ram)
+void cpu_loop(CPU *cpu, void *ram_ptr)
 {
-    cpu_fetch(cpu, (RAM *)ram);
-    cpu_exec(cpu);
+    RAM *ram = (RAM *)ram_ptr;
+    cpu->regs.pc = ram->read(ram, 0xfffc) | (ram->read(ram, 0xfffc | 1) << 8);
+
+    cpu_fetch_n_run(cpu, ram);
 }
 
-static void cpu_fetch(CPU *cpu, RAM *ram) {}
-
-static void cpu_exec(CPU *cpu) {}
+static void cpu_fetch_n_run(CPU *cpu, RAM *ram) { isa_table[cpu->regs.pc](cpu, ram); }

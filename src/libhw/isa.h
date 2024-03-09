@@ -14,5 +14,6 @@
 typedef void (*isa)(CPU *cpu, RAM *ram);
 
 void isa_init(void);
+void isa_translate_addrmode(CPU *cpu, RAM *ram, _u16 opcode);
 
 #endif /* _ISA_H_ */

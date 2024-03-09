@@ -28,4 +28,9 @@ void cpu_loop(CPU *cpu, void *ram_ptr)
     cpu_fetch_n_run(cpu, ram);
 }
 
-static void cpu_fetch_n_run(CPU *cpu, RAM *ram) { isa_table[cpu->regs.pc](cpu, ram); }
+static void cpu_fetch_n_run(CPU *cpu, RAM *ram)
+{
+    _u16 opcode = cpu->regs.pc;
+    isa_translate_addrmode(cpu, ram, opcode);
+    isa_table[opcode](cpu, ram);
+}

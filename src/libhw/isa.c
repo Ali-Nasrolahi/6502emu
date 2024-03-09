@@ -1,5 +1,8 @@
 #include "isa.h"
 
+isa isa_table[ISA_TABLE_SIZE];
+
+/* #### Address Modes #### */
 static void isa_addrmode_acc(CPU *cpu, RAM *ram) {}
 
 static void isa_addrmode_imm(CPU *cpu, RAM *ram) { cpu->active_addr = cpu->regs.pc++; }
@@ -50,9 +53,19 @@ static void isa_addrmode_iny(CPU *cpu, RAM *ram) {}
 
 static void isa_translate_addrmode(CPU *cpu, RAM *ram, _u16 opcode) {}
 
-static void isa_test(CPU *cpu, RAM *ram)
+/* #### Instructions #### */
+static void isa_brk(CPU *cpu, RAM *ram) {}
+
+static void isa_inx(CPU *cpu, RAM *ram)
 {
-    printf("cpu: %s, ram: %s\n", cpu->dev.name, ram->dev.name);
+    ++(cpu->regs.ix);
+    cpu->regs.ps.flags.zf |= (!cpu->regs.ix);
+    cpu->regs.ps.flags.nf |= (cpu->regs.ix & 0x80);
 }
 
-const isa isa_table[] = {isa_test};
+void isa_init()
+{
+    memset(isa_table, 0, sizeof(isa) * ISA_TABLE_SIZE);
+
+    isa_table[0x00] = isa_brk;
+}

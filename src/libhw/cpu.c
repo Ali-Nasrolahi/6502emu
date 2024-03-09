@@ -16,6 +16,8 @@ void cpu_init(CPU *cpu)
 
     reg->sp = 0xfd;
     reg->ps.flags.un = 0x1;
+
+    isa_init();
 }
 
 void cpu_loop(CPU *cpu, void *ram_ptr)

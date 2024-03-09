@@ -35,6 +35,7 @@ struct _6502_registers {
 struct _6502_cpu {
     struct device dev;
     struct _6502_registers regs;
+    _u16 active_addr;
 };
 
 typedef struct _6502_cpu CPU;

@@ -9,11 +9,7 @@
 #include "cpu.h"
 #include "ram.h"
 
-#define ISA_TABLE_SIZE (0xFF + 1)
-
-typedef void (*isa)(CPU *cpu, RAM *ram);
-
 void isa_init(void);
-void isa_translate_addrmode(CPU *cpu, RAM *ram, _u16 opcode);
+void isa_exec(CPU *cpu, RAM *ram);
 
 #endif /* _ISA_H_ */

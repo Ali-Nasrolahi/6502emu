@@ -2,10 +2,6 @@
 #include "isa.h"
 #include "ram.h"
 
-extern isa isa_table[];
-
-static void cpu_fetch_n_run(CPU *cpu, RAM *ram);
-
 void cpu_init(CPU *cpu)
 {
     struct _6502_registers *reg = &cpu->regs;
@@ -25,12 +21,5 @@ void cpu_loop(CPU *cpu, void *ram_ptr)
     RAM *ram = (RAM *)ram_ptr;
     cpu->regs.pc = ram->read(ram, 0xfffc) | (ram->read(ram, 0xfffc | 1) << 8);
 
-    cpu_fetch_n_run(cpu, ram);
-}
-
-static void cpu_fetch_n_run(CPU *cpu, RAM *ram)
-{
-    _u16 opcode = cpu->regs.pc;
-    isa_translate_addrmode(cpu, ram, opcode);
-    isa_table[opcode](cpu, ram);
+    isa_exec(cpu, (RAM *)ram);
 }

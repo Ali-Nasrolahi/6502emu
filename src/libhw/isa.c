@@ -1,6 +1,10 @@
 #include "isa.h"
 
-isa isa_table[ISA_TABLE_SIZE];
+#include <stdarg.h>
+
+#define ISA_TABLE_SIZE (0xFF + 1)
+
+void (*isa_table[ISA_TABLE_SIZE])(CPU *, RAM *);
 
 /* #### Address Modes #### */
 static void isa_addrmode_imp(CPU *cpu, RAM *ram)
@@ -69,9 +73,9 @@ static void isa_addrmode_iny(CPU *cpu, RAM *ram)
                        ((ram->read(ram, ind_addr + cpu->regs.ix + 1) & 0x00ff) << 8);
 }
 
-void isa_translate_addrmode(CPU *cpu, RAM *ram, _u16 opcode)
+static void isa_translate_addrmode(CPU *cpu, RAM *ram)
 {
-
+    _u16 opcode = cpu->regs.pc;
     void (*addrmode_f)(CPU *, RAM *) = NULL;
 
     switch ((opcode >> 2) & 0b00000111) {
@@ -118,7 +122,19 @@ static void isa_nop(CPU *cpu, RAM *ram)
     (void)ram;
 }
 
-static void isa_brk(CPU *cpu, RAM *ram) {}
+static void isa_brk(CPU *cpu, RAM *ram)
+{
+    cpu->regs.pc++;
+    cpu->regs.ps.flags.bc = 1;
+}
+
+static void isa_lda(CPU *cpu, RAM *ram)
+{
+    cpu->regs.acc = ram->read(ram, cpu->active_addr);
+    cpu->regs.ps.flags.zf |= !cpu->regs.acc;
+    cpu->regs.ps.flags.nf |= cpu->regs.acc & (1 << (7 - 1));
+    cpu->regs.pc++;
+}
 
 static void isa_inx(CPU *cpu, RAM *ram)
 {
@@ -127,10 +143,32 @@ static void isa_inx(CPU *cpu, RAM *ram)
     cpu->regs.ps.flags.nf |= (cpu->regs.ix & 0x80);
 }
 
+static void isa_new_instruction(void (*isa_f)(CPU *, RAM *), _u16 opcode, ...)
+{
+    va_list vl;
+
+    isa_table[opcode] = isa_f;
+
+    va_start(vl, opcode);
+
+    while (opcode = (_u16)va_arg(vl, int))
+        isa_table[opcode] = isa_f;
+
+    va_end(vl);
+}
+
 void isa_init()
 {
     for (int i = 0; i < ISA_TABLE_SIZE; i++)
         isa_table[i] = isa_nop;
 
     isa_table[0x00] = isa_brk;
+
+    isa_new_instruction(isa_lda, 0xA9, 0xA5, 0xB5, 0xAD, 0xBD, 0xB9, 0xA1, 0xB1, NULL);
+}
+
+void isa_exec(CPU *cpu, RAM *ram)
+{
+    // isa_translate_addrmode(cpu, ram);
+    isa_table[cpu->regs.pc](cpu, ram);
 }

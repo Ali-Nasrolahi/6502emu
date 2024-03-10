@@ -136,6 +136,39 @@ static void isa_lda(CPU *cpu, RAM *ram)
     cpu->regs.pc++;
 }
 
+static void isa_ldx(CPU *cpu, RAM *ram)
+{
+    cpu->regs.ix = ram->read(ram, cpu->active_addr);
+    cpu->regs.ps.flags.zf |= !cpu->regs.ix;
+    cpu->regs.ps.flags.nf |= cpu->regs.ix & (1 << (7 - 1));
+    cpu->regs.pc++;
+}
+
+static void isa_ldy(CPU *cpu, RAM *ram)
+{
+    cpu->regs.iy = ram->read(ram, cpu->active_addr);
+    cpu->regs.ps.flags.zf |= !cpu->regs.iy;
+    cpu->regs.ps.flags.nf |= cpu->regs.iy & (1 << (7 - 1));
+    cpu->regs.pc++;
+}
+
+static void isa_sta(CPU *cpu, RAM *ram)
+{
+    ram->write(ram, cpu->active_addr, cpu->regs.acc);
+    cpu->regs.pc++;
+}
+
+static void isa_stx(CPU *cpu, RAM *ram)
+{
+    ram->write(ram, cpu->active_addr, cpu->regs.ix);
+    cpu->regs.pc++;
+}
+static void isa_sty(CPU *cpu, RAM *ram)
+{
+    ram->write(ram, cpu->active_addr, cpu->regs.iy);
+    cpu->regs.pc++;
+}
+
 static void isa_inx(CPU *cpu, RAM *ram)
 {
     ++(cpu->regs.ix);
@@ -165,10 +198,15 @@ void isa_init()
     isa_table[0x00] = isa_brk;
 
     isa_new_instruction(isa_lda, 0xA9, 0xA5, 0xB5, 0xAD, 0xBD, 0xB9, 0xA1, 0xB1, NULL);
+    isa_new_instruction(isa_ldx, 0xA2, 0xA6, 0xB6, 0xAE, 0xBE, NULL);
+    isa_new_instruction(isa_ldy, 0xA0, 0xA4, 0xB4, 0xAC, 0xBC, NULL);
+    isa_new_instruction(isa_sta, 0x85, 0x95, 0x8D, 0x9D, 0x99, 0x81, 0x91, NULL);
+    isa_new_instruction(isa_stx, 0x86, 0x96, 0x8E, NULL);
+    isa_new_instruction(isa_sty, 0x84, 0x94, 0x8C, NULL);
 }
 
 void isa_exec(CPU *cpu, RAM *ram)
 {
-    // isa_translate_addrmode(cpu, ram);
+    isa_translate_addrmode(cpu, ram);
     isa_table[cpu->regs.pc](cpu, ram);
 }

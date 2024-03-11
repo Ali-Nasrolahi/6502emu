@@ -5,11 +5,15 @@
 #define ISA_TABLE_SIZE (0xFF + 1)
 
 void (*isa_table[ISA_TABLE_SIZE])(CPU *, RAM *);
+_u8 isa_addrmode_table[ISA_TABLE_SIZE];
 
 /* #### Address Modes #### */
-static void isa_addrmode_imp(CPU *cpu, RAM *ram)
+static void isa_addrmode_acc(CPU *cpu, RAM *ram)
 {
-    (void)cpu;
+    /* Setting cpu 'unused' status flag to determine
+     * whether address mode is Accumulator.
+     */
+    cpu->regs.ps.flags.un = 1;
     (void)ram;
 }
 
@@ -86,11 +90,7 @@ static void isa_translate_addrmode(CPU *cpu, RAM *ram)
         addrmode_f = isa_addrmode_zrp;
         break;
     case 2:
-        /*
-         * For Accumulator addrmode,
-         * implied set instead and later inside the instructions we handle it.
-         */
-        addrmode_f = (opcode & 0b11) == 0b01 ? isa_addrmode_imm : isa_addrmode_imp;
+        addrmode_f = (opcode & 0b11) == 0b01 ? isa_addrmode_imm : isa_addrmode_acc;
         break;
     case 3:
         addrmode_f = isa_addrmode_abs;
@@ -184,16 +184,20 @@ static void isa_new_instruction(void (*isa_f)(CPU *, RAM *), _u16 opcode, ...)
 
     va_start(vl, opcode);
 
-    while (opcode = (_u16)va_arg(vl, int))
+    while (opcode = (_u16)va_arg(vl, int)) {
         isa_table[opcode] = isa_f;
+        isa_addrmode_table[opcode] = 0;
+    }
 
     va_end(vl);
 }
 
 void isa_init()
 {
-    for (int i = 0; i < ISA_TABLE_SIZE; i++)
+    for (int i = 0; i < ISA_TABLE_SIZE; i++) {
         isa_table[i] = isa_nop;
+        isa_addrmode_table[i] = 1;
+    }
 
     isa_table[0x00] = isa_brk;
 
@@ -207,6 +211,8 @@ void isa_init()
 
 void isa_exec(CPU *cpu, RAM *ram)
 {
-    isa_translate_addrmode(cpu, ram);
+    if (isa_addrmode_table[cpu->regs.pc])
+        isa_translate_addrmode(cpu, ram);
+
     isa_table[cpu->regs.pc](cpu, ram);
 }

@@ -11,7 +11,6 @@ void cpu_init(CPU *cpu)
     cpu->dev.name = "CPU";
 
     reg->sp = 0xfd;
-    reg->ps.flags.un = 0x1;
 
     isa_init();
 }

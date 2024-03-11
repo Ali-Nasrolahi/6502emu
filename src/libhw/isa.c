@@ -169,11 +169,32 @@ static void isa_sty(CPU *cpu, RAM *ram)
     cpu->regs.pc++;
 }
 
-static void isa_inx(CPU *cpu, RAM *ram)
+static void isa_tax(CPU *cpu, RAM *ram)
 {
-    ++(cpu->regs.ix);
-    cpu->regs.ps.flags.zf |= (!cpu->regs.ix);
-    cpu->regs.ps.flags.nf |= (cpu->regs.ix & 0x80);
+    cpu->regs.ix = cpu->regs.acc;
+    cpu->regs.ps.flags.zf |= !cpu->regs.ix;
+    cpu->regs.ps.flags.nf |= cpu->regs.ix & (1 << (7 - 1));
+}
+
+static void isa_tay(CPU *cpu, RAM *ram)
+{
+    cpu->regs.iy = cpu->regs.acc;
+    cpu->regs.ps.flags.zf |= !cpu->regs.iy;
+    cpu->regs.ps.flags.nf |= cpu->regs.iy & (1 << (7 - 1));
+}
+
+static void isa_txa(CPU *cpu, RAM *ram)
+{
+    cpu->regs.acc = cpu->regs.ix;
+    cpu->regs.ps.flags.zf |= !cpu->regs.acc;
+    cpu->regs.ps.flags.nf |= cpu->regs.acc & (1 << (7 - 1));
+}
+
+static void isa_tya(CPU *cpu, RAM *ram)
+{
+    cpu->regs.acc = cpu->regs.iy;
+    cpu->regs.ps.flags.zf |= !cpu->regs.acc;
+    cpu->regs.ps.flags.nf |= cpu->regs.acc & (1 << (7 - 1));
 }
 
 static void isa_new_instruction(void (*isa_f)(CPU *, RAM *), _u16 opcode, ...)
@@ -201,12 +222,20 @@ void isa_init()
 
     isa_table[0x00] = isa_brk;
 
+    /* Load/Store Operations */
     isa_new_instruction(isa_lda, 0xA9, 0xA5, 0xB5, 0xAD, 0xBD, 0xB9, 0xA1, 0xB1, NULL);
     isa_new_instruction(isa_ldx, 0xA2, 0xA6, 0xB6, 0xAE, 0xBE, NULL);
     isa_new_instruction(isa_ldy, 0xA0, 0xA4, 0xB4, 0xAC, 0xBC, NULL);
     isa_new_instruction(isa_sta, 0x85, 0x95, 0x8D, 0x9D, 0x99, 0x81, 0x91, NULL);
     isa_new_instruction(isa_stx, 0x86, 0x96, 0x8E, NULL);
     isa_new_instruction(isa_sty, 0x84, 0x94, 0x8C, NULL);
+
+    /* Register Transfers (IMPLICIT) */
+    isa_table[0xAA] = isa_tax;
+    isa_table[0xA8] = isa_tay;
+    isa_table[0x8A] = isa_txa;
+    isa_table[0x98] = isa_tya;
+
 }
 
 void isa_exec(CPU *cpu, RAM *ram)

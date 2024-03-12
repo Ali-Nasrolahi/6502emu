@@ -17,6 +17,6 @@ struct machine {
 
 static struct machine NES;
 
-void machine_run(void);
+void machine_run(_u8 *flash, size_t size);
 
 #endif /* _MACHINE_H_ */

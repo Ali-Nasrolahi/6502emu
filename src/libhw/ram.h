@@ -22,5 +22,6 @@ struct _6502_ram {
 typedef struct _6502_ram RAM;
 
 void ram_init(RAM *);
+void ram_load(RAM *, _u8 *m, size_t size);
 
 #endif /* _RAM_H_ */

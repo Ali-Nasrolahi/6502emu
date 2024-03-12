@@ -6,8 +6,10 @@
 
 #include "libhw/machine.h"
 
+_u8 program[] = {0};
+
 int main(int argc, char **argv)
 {
-    machine_run();
+    machine_run(program, sizeof(program) / sizeof(_u8));
     return 0;
 }

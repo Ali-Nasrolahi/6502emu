@@ -6,10 +6,14 @@
 
 #include "libhw/machine.h"
 
-_u8 program[] = {0};
+_u16 program[] = {
+    0xA9, 0x0A /* LDA #10 */
+
+};
 
 int main(int argc, char **argv)
 {
-    machine_run(program, sizeof(program) / sizeof(_u8));
+
+    machine_run(program, sizeof(program) / sizeof(_u16));
     return 0;
 }

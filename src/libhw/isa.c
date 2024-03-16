@@ -235,13 +235,13 @@ void isa_init()
     isa_table[0xA8] = isa_tay;
     isa_table[0x8A] = isa_txa;
     isa_table[0x98] = isa_tya;
-
 }
 
 void isa_exec(CPU *cpu, RAM *ram)
 {
-    if (isa_addrmode_table[cpu->regs.pc])
+    _u16 opcode = cpu->regs.pc;
+    if (isa_addrmode_table[opcode])
         isa_translate_addrmode(cpu, ram);
 
-    isa_table[cpu->regs.pc](cpu, ram);
+    isa_table[opcode](cpu, ram);
 }

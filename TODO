@@ -1,0 +1,7 @@
+-------------------------------------------------------------------------------
+
+TODO:
+    - Immediate & Accumulator addrmode (maybe by uisng active_value)
+    - Loader for handling programs binaries
+
+-------------------------------------------------------------------------------

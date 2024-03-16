@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <unistd.h>
 
-void machine_run(_u8 *m, size_t size)
+void machine_run(_u16 *m, size_t size)
 {
     cpu_init(&NES.cpu);
     ram_init(&NES.ram);

@@ -11,7 +11,7 @@ void ram_init(RAM *ram)
     ram->write = ram_write;
 }
 
-void ram_load(RAM *ram, _u8 *m, size_t size) { memcpy(&ram->memory[0xFFCC], m, size); }
+void ram_load(RAM *ram, _u16 *m, size_t size) { memcpy(&ram->memory[0xFFFC], m, size); }
 
 static _u8 ram_read(RAM *ram, _u16 addr)
 {

@@ -1,0 +1,7 @@
+-------------------------------------------------------------------------------
+
+TODO:
+    - Immediate & Accumulator address modes implementation (maybe by using active_value)
+    - Loader for handling programs binaries
+
+-------------------------------------------------------------------------------
